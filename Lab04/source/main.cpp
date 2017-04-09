@@ -2,8 +2,14 @@
 #include "res.h"
 #include <stdio.h>
 
+#define x_min 150
+#define x_max 300
+#define y_min 100
+#define y_max 250
+#define x_width 50
+#define y_width 50
+
 int result_tab[9] = { 0 };
-int continue_game;
 int licznik = 0;
 CHAR sz_text[500];
 
@@ -90,17 +96,17 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
     {
       int x = LOWORD(lParam);
       int y = HIWORD(lParam);
-      if ((x > 150 && x < 300) && ((y > 100) && (y < 250)))
+      if ((x > x_min && x < x_max) && ((y > y_min) && (y < y_max)))
       {
         //x=((x-iMinBoardX)/iWidthBoardX)*iWidthBoardX+iMaxBoardX/2);
         //y=((y-iMinBoardY)/iWidthBoardY)*iWidthBoardY+iMaxBoardY/2);
-        int filed_x = ((x - 150) / 50);
-        int filed_y = ((y - 100) / 50);
+        int filed_x = ((x - x_min) / x_width);
+        int filed_y = ((y - y_min) / y_width);
         if (is_field_ocupied_by_first_player[filed_x][filed_y] == false
           && is_field_ocupied_by_second_player[filed_x][filed_y] == false)
         {
-          x = (filed_x * 50) + 175;
-          y = (filed_y * 50) + 125;
+          x = (filed_x * x_width) + (x_min+(x_width/2));
+          y = (filed_y * y_width) + (y_min + (x_width / 2));
           if (is_first_player_turn == true)
           {
             DrawX(hdc, x, y);
@@ -128,6 +134,7 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
     DrawBoard(hdc);
     RedrawBoard(hdc);   
     ReleaseDC(hwndDlg,hdc);
+    return DefWindowProc(hwndDlg, uMsg, wParam, lParam);
     }
     return TRUE;
 	case WM_CLOSE:
@@ -176,15 +183,14 @@ void DrawBoard(HDC x)
 {
   HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(255, 125, 125));
   SelectObject(x, h_my_pen);
-
-  MoveToEx(x, 200, 100, NULL);
-  LineTo(x, 200, 250);
-  MoveToEx(x, 250, 100, NULL);
-  LineTo(x, 250, 250);
-  MoveToEx(x, 150, 150, NULL);
-  LineTo(x, 300, 150);
-  MoveToEx(x, 150, 200, NULL);
-  LineTo(x, 300, 200);
+  MoveToEx(x, x_min+50, y_min, NULL);
+  LineTo(x, x_min + 50, y_max);
+  MoveToEx(x, x_max-50, y_min, NULL);
+  LineTo(x, x_max - 50, y_max);
+  MoveToEx(x, x_min, y_min+50, NULL);
+  LineTo(x, x_max, y_min + 50);
+  MoveToEx(x, x_min, y_max-50, NULL);
+  LineTo(x, x_max, y_max - 50);
   DeleteObject(h_my_pen);
 
 }
@@ -215,11 +221,11 @@ void RedrawBoard(HDC hdc)
     {
       if (is_field_ocupied_by_first_player[i_field_x][i_field_y] == true)
       {
-        DrawX(hdc, (i_field_x * 50 + 175), (i_field_y * 50 + 125));
+        DrawX(hdc, (i_field_x * x_width + (x_min + (x_width / 2))), (i_field_y * y_width + (y_min + (y_width / 2))));
       }
       if (is_field_ocupied_by_second_player[i_field_x][i_field_y] == true)
       {
-        DrawO(hdc, (i_field_x * 50 + 175), (i_field_y * 50 + 125));
+        DrawO(hdc, (i_field_x * x_width + (x_min + (x_width / 2))), (i_field_y * y_width + (y_min + (y_width / 2))));
       }
     }
   }
@@ -302,8 +308,10 @@ int GameResult(HWND hwndDlg, HDC x)
     is_game_on = false;
     wsprintf(sz_text, "START");
     SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
+    return TRUE;
   }
   DeleteObject(h_my_pen);
+  return TRUE;
 }
 //Rysowanie
 //LineTo
