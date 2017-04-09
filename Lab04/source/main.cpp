@@ -136,8 +136,7 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
     ReleaseDC(hwndDlg,hdc);
     return DefWindowProc(hwndDlg, uMsg, wParam, lParam);
     }
-    return TRUE;
-	case WM_CLOSE:
+  case WM_CLOSE:
 		DestroyWindow(hwndDlg); // zniszczenie okna
 		PostQuitMessage(0); //Komunikat polecenia zakoñczenia aplikacji
 		return TRUE;
