@@ -15,10 +15,7 @@ void DrawX(HDC hdc, int x, int y);
 void DrawO(HDC hdc, int x, int y);
 void RedrawBoard(HDC hdc);
 void ClearBoard(HDC hdc);
-void GameResult();
-
-
-
+void GameResult(HWND hwndDlg, HDC x);
 
 
 INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)//Funkcja obs³ugi komunikatów
@@ -39,6 +36,9 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
       {
       case IDC_BUTTON10://Klikniêcie na nsz przycisk Button1
       {
+        HDC hdc = GetDC(hwndDlg);
+        ClearBoard(hdc);
+        DrawBoard(hdc);
         if (is_game_on == false)
         {
           if (is_first_player_turn == true)
@@ -49,10 +49,6 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
           {
             CheckRadioButton(hwndDlg, IDC_RADIO1, IDC_RADIO2, IDC_RADIO2);
           }
-          HDC hdc = GetDC(hwndDlg);
-          ClearBoard(hdc);
-          is_game_on = true;
-          DrawBoard(hdc);
           ReleaseDC(hwndDlg, hdc);
           for (int i = 0; i < 3; i++)
           {
@@ -60,17 +56,21 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
             {
               is_field_ocupied_by_first_player[i][j] = false;
               is_field_ocupied_by_second_player[i][j] = false;
+              result_tab[3 * j + i] = 0;
             }
           }
           wsprintf(sz_text, "Gra siê rozpoczê³¹");
           SetWindowText(hwndStatic5, sz_text);
           wsprintf(sz_text, "STOP");
           SetWindowText(hwndButton10, sz_text);
+          is_game_on = true;
         }
         else
         {
           wsprintf(sz_text, "START");
           SetWindowText(hwndButton10, sz_text);
+          wsprintf(sz_text, "Rozpocznij grê");
+          SetWindowText(hwndStatic5, sz_text);
           is_game_on = false;
         }
         return TRUE;
@@ -80,26 +80,25 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
       return TRUE;
     default: ;
     }
-    return TRUE;
   case WM_LBUTTONDOWN:
   {
-    GameResult();
+    HDC hdc = GetDC(hwndDlg);
+    GameResult(hwndDlg,hdc);
     if (is_game_on == true)
     {
       int x = LOWORD(lParam);
       int y = HIWORD(lParam);
-      if ((x > 100 && x < 250) && ((y > 100) && (y < 250)))
+      if ((x > 150 && x < 300) && ((y > 100) && (y < 250)))
       {
         //x=((x-iMinBoardX)/iWidthBoardX)*iWidthBoardX+iMaxBoardX/2);
         //y=((y-iMinBoardY)/iWidthBoardY)*iWidthBoardY+iMaxBoardY/2);
-        int filed_x = ((x - 100) / 50);
+        int filed_x = ((x - 150) / 50);
         int filed_y = ((y - 100) / 50);
         if (is_field_ocupied_by_first_player[filed_x][filed_y] == false
           && is_field_ocupied_by_second_player[filed_x][filed_y] == false)
         {
-          x = (filed_x * 50) + 125;
+          x = (filed_x * 50) + 175;
           y = (filed_y * 50) + 125;
-          HDC hdc = GetDC(hwndDlg);
           if (is_first_player_turn == true)
           {
             DrawX(hdc, x, y);
@@ -154,12 +153,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	
 }
 
-enum WhoWin
-{
-  Nought,
-  Cross,
-  None
-};
 void ClearBoard(HDC x)
 {
   COLORREF color = GetPixel(x, 80, 80);
@@ -168,10 +161,10 @@ void ClearBoard(HDC x)
   COLORREF BgColorB = GetBValue(color);
   HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(BgColorR, BgColorG, BgColorB));
   SelectObject(x, h_my_pen);
-  for (int i = 100; i<250; i++)
+  for (int i = 0; i<300; i++)
   {
     MoveToEx(x, i, 100, NULL);
-    LineTo(x, i, 250);
+    LineTo(x, i, 300);
   }
   DeleteObject(h_my_pen);
 }
@@ -179,14 +172,15 @@ void DrawBoard(HDC x)
 {
   HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(255, 125, 125));
   SelectObject(x, h_my_pen);
-  MoveToEx(x, 150, 100, NULL);
-  LineTo(x, 150, 250);
+
   MoveToEx(x, 200, 100, NULL);
   LineTo(x, 200, 250);
-  MoveToEx(x, 100, 150, NULL);
-  LineTo(x, 250, 150);
-  MoveToEx(x, 100, 200, NULL);
-  LineTo(x, 250, 200);
+  MoveToEx(x, 250, 100, NULL);
+  LineTo(x, 250, 250);
+  MoveToEx(x, 150, 150, NULL);
+  LineTo(x, 300, 150);
+  MoveToEx(x, 150, 200, NULL);
+  LineTo(x, 300, 200);
   DeleteObject(h_my_pen);
 
 }
@@ -204,12 +198,6 @@ void DrawO(HDC hdc, int x, int y)
 {
   HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(100,150, 200));
   SelectObject(hdc, h_my_pen);
-  MoveToEx(hdc, x - 10, y - 10, NULL);
-  /*LineTo(hdc, x - 10, y + 10);
-  LineTo(hdc, x - 10, y - 10);
-  LineTo(hdc, x + 10, y - 10);
-  LineTo(hdc, x + 10, y + 10);
-  LineTo(hdc, x - 10, y + 10);*/
   Ellipse(hdc, x-15, y-15, x+15, y+15);
   DeleteObject(h_my_pen);
 
@@ -223,47 +211,57 @@ void RedrawBoard(HDC hdc)
     {
       if (is_field_ocupied_by_first_player[i_field_x][i_field_y] == true)
       {
-        DrawX(hdc, (i_field_x * 50 + 125), (i_field_y * 50 + 125));
+        DrawX(hdc, (i_field_x * 50 + 175), (i_field_y * 50 + 125));
       }
       if (is_field_ocupied_by_second_player[i_field_x][i_field_y] == true)
       {
-        DrawO(hdc, (i_field_x * 50 + 125), (i_field_y * 50 + 125));
+        DrawO(hdc, (i_field_x * 50 + 175), (i_field_y * 50 + 125));
       }
     }
   }
 }
-void GameResult()
+void GameResult(HWND hwndDlg,HDC x)
 {
+  HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(255, 125, 125));
+  SelectObject(x, h_my_pen);
   for (int i = 0; i<3; i++)
   {
     if ((result_tab[3 * i] == result_tab[3 * i + 1]) && (result_tab[3 * i] == result_tab[3 * i + 2]))
     {
       if (result_tab[3 * i] == 1)
       {
-        MessageBox(NULL, TEXT("Krzy¿yk wygrywa"), TEXT("Wynik Gry"), MB_OK);
+        wsprintf(sz_text, "Krzy¿yk wygrywa");
+        TextOut(x, 10, 230, sz_text, strlen(sz_text));
         is_game_on = false;
-        result_tab[9] = { 0 };
+        wsprintf(sz_text, "START");
+        SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
       }
       else if (result_tab[3 * i] == 2)
       {
-        MessageBox(NULL, TEXT("Kó³ko wygrywa"), TEXT("Wynik Gry"), MB_OK);
+        wsprintf(sz_text, "Kó³ko wygrywa");
+        TextOut(x, 10, 230, sz_text, strlen(sz_text));
         is_game_on = false;
-        result_tab[9] = { 0 };
+        wsprintf(sz_text, "START");
+        SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
       }
     }
     if ((result_tab[i] == result_tab[i + 3]) && (result_tab[i] == result_tab[i + 6]))
     {
       if (result_tab[i] == 1)
       {
-        MessageBox(NULL, TEXT("Krzy¿yk wygrywa"), TEXT("Wynik Gry"), MB_OK);
+        wsprintf(sz_text, "Krzy¿yk wygrywa");
+        TextOut(x, 10, 230, sz_text, strlen(sz_text));
+        wsprintf(sz_text, "START");
+        SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
         is_game_on = false;
-        result_tab[9] = { 0 };
       }
       else if (result_tab[i] == 2)
       {
-        MessageBox(NULL, TEXT("Kó³ko wygrywa"), TEXT("Wynik Gry"), MB_OK);
+        wsprintf(sz_text, "Kó³ko wygrywa");
+        TextOut(x, 10, 230, sz_text, strlen(sz_text));
         is_game_on = false;
-        result_tab[9] = { 0 };
+        wsprintf(sz_text, "START");
+        SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
       }
 
     }
@@ -272,17 +270,22 @@ void GameResult()
   {
     if (result_tab[4] == 1)
     {
-      MessageBox(NULL, TEXT("Krzy¿yk wygrywa"), TEXT("Wynik Gry"), MB_OK);
+      wsprintf(sz_text, "Krzy¿yk wygrywa");
+      TextOut(x, 10, 230, sz_text, strlen(sz_text));
       is_game_on = false;
-      result_tab[9] = { 0 };
+      wsprintf(sz_text, "START");
+      SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
     }
     else if (result_tab[4] == 2)
     {
-      MessageBox(NULL, TEXT("Kó³ko wygrywa"), TEXT("Wynik Gry"), MB_OK);
+      wsprintf(sz_text, "Kó³ko wygrywa");
+      TextOut(x, 10, 230, sz_text, strlen(sz_text));
       is_game_on = false;
-      result_tab[9] = { 0 };
+      wsprintf(sz_text, "START");
+      SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
     }
   }
+  DeleteObject(h_my_pen);
 }
 //Rysowanie
 //LineTo
