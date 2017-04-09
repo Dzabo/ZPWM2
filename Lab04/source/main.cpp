@@ -4,6 +4,7 @@
 
 int result_tab[9] = { 0 };
 int continue_game;
+int licznik = 0;
 CHAR sz_text[500];
 
 bool is_game_on=false;
@@ -15,7 +16,7 @@ void DrawX(HDC hdc, int x, int y);
 void DrawO(HDC hdc, int x, int y);
 void RedrawBoard(HDC hdc);
 void ClearBoard(HDC hdc);
-void GameResult(HWND hwndDlg, HDC x);
+int GameResult(HWND hwndDlg, HDC x);
 
 
 INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)//Funkcja obs³ugi komunikatów
@@ -39,6 +40,7 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
         HDC hdc = GetDC(hwndDlg);
         ClearBoard(hdc);
         DrawBoard(hdc);
+        licznik = 0;
         if (is_game_on == false)
         {
           if (is_first_player_turn == true)
@@ -104,12 +106,14 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
             DrawX(hdc, x, y);
             is_field_ocupied_by_first_player[filed_x][filed_y] = true;
             result_tab[3 * (filed_y)+(filed_x)] = 1;
+            licznik++;
           }
           else
           {
             DrawO(hdc, x, y);
             is_field_ocupied_by_second_player[filed_x][filed_y] = true;
             result_tab[3 * (filed_y)+(filed_x)] = 2;
+            licznik++;
           }
           ReleaseDC(hwndDlg, hdc);
           is_first_player_turn = !is_first_player_turn;
@@ -220,11 +224,11 @@ void RedrawBoard(HDC hdc)
     }
   }
 }
-void GameResult(HWND hwndDlg,HDC x)
+int GameResult(HWND hwndDlg, HDC x)
 {
   HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(255, 125, 125));
   SelectObject(x, h_my_pen);
-  for (int i = 0; i<3; i++)
+  for (int i = 0; i < 3; i++)
   {
     if ((result_tab[3 * i] == result_tab[3 * i + 1]) && (result_tab[3 * i] == result_tab[3 * i + 2]))
     {
@@ -235,6 +239,7 @@ void GameResult(HWND hwndDlg,HDC x)
         is_game_on = false;
         wsprintf(sz_text, "START");
         SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
+        return TRUE;
       }
       else if (result_tab[3 * i] == 2)
       {
@@ -243,6 +248,7 @@ void GameResult(HWND hwndDlg,HDC x)
         is_game_on = false;
         wsprintf(sz_text, "START");
         SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
+        return TRUE;
       }
     }
     if ((result_tab[i] == result_tab[i + 3]) && (result_tab[i] == result_tab[i + 6]))
@@ -254,6 +260,7 @@ void GameResult(HWND hwndDlg,HDC x)
         wsprintf(sz_text, "START");
         SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
         is_game_on = false;
+        return TRUE;
       }
       else if (result_tab[i] == 2)
       {
@@ -262,6 +269,7 @@ void GameResult(HWND hwndDlg,HDC x)
         is_game_on = false;
         wsprintf(sz_text, "START");
         SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
+        return TRUE;
       }
 
     }
@@ -275,6 +283,7 @@ void GameResult(HWND hwndDlg,HDC x)
       is_game_on = false;
       wsprintf(sz_text, "START");
       SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
+      return TRUE;
     }
     else if (result_tab[4] == 2)
     {
@@ -283,7 +292,16 @@ void GameResult(HWND hwndDlg,HDC x)
       is_game_on = false;
       wsprintf(sz_text, "START");
       SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
+      return TRUE;
     }
+  }
+  if (licznik == 9)
+  {
+    wsprintf(sz_text, "Remis");
+    TextOut(x, 10, 230, sz_text, strlen(sz_text));
+    is_game_on = false;
+    wsprintf(sz_text, "START");
+    SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
   }
   DeleteObject(h_my_pen);
 }
