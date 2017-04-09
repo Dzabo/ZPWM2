@@ -106,7 +106,7 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
           && is_field_ocupied_by_second_player[filed_x][filed_y] == false)
         {
           x = (filed_x * x_width) + (x_min+(x_width/2));
-          y = (filed_y * y_width) + (y_min + (x_width / 2));
+          y = (filed_y * y_width) + (y_min + (y_width / 2));
           if (is_first_player_turn == true)
           {
             DrawX(hdc, x, y);
@@ -319,4 +319,3 @@ int GameResult(HWND hwndDlg, HDC x)
 //TextOut
 //GetPixel
 //SetPixel
-// TextOut(hdc, 0, 0, sz_text, strlen(sz_text)); //napsize start w lewym gornym, ogarn¹c
