@@ -98,8 +98,6 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
       int y = HIWORD(lParam);
       if ((x > x_min && x < x_max) && ((y > y_min) && (y < y_max)))
       {
-        //x=((x-iMinBoardX)/iWidthBoardX)*iWidthBoardX+iMaxBoardX/2);
-        //y=((y-iMinBoardY)/iWidthBoardY)*iWidthBoardY+iMaxBoardY/2);
         int filed_x = ((x - x_min) / x_width);
         int filed_y = ((y - y_min) / y_width);
         if (is_field_ocupied_by_first_player[filed_x][filed_y] == false
@@ -154,7 +152,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	ShowWindow(hwndMainWindow, iCmdShow);
 	
 	MSG msg = {};
-	while (GetMessage(&msg, NULL, 0, 0))
+	while (GetMessage(&msg, nullptr, 0, 0))
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -171,10 +169,10 @@ void ClearBoard(HDC x)
   COLORREF BgColorB = GetBValue(color);
   HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(BgColorR, BgColorG, BgColorB));
   SelectObject(x, h_my_pen);
-  for (int i = 0; i<300; i++)
+  for (int i = 0; i<x_max; i++)
   {
-    MoveToEx(x, i, 100, NULL);
-    LineTo(x, i, 300);
+    MoveToEx(x, i, y_min, nullptr);
+    LineTo(x, i, y_max);
   }
   DeleteObject(h_my_pen);
 }
@@ -182,14 +180,14 @@ void DrawBoard(HDC x)
 {
   HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(255, 125, 125));
   SelectObject(x, h_my_pen);
-  MoveToEx(x, x_min+50, y_min, NULL);
-  LineTo(x, x_min + 50, y_max);
-  MoveToEx(x, x_max-50, y_min, NULL);
-  LineTo(x, x_max - 50, y_max);
-  MoveToEx(x, x_min, y_min+50, NULL);
-  LineTo(x, x_max, y_min + 50);
-  MoveToEx(x, x_min, y_max-50, NULL);
-  LineTo(x, x_max, y_max - 50);
+  MoveToEx(x, x_min+ x_width, y_min, nullptr);
+  LineTo(x, x_min + x_width, y_max);
+  MoveToEx(x, x_max- x_width, y_min, nullptr);
+  LineTo(x, x_max - x_width, y_max);
+  MoveToEx(x, x_min, y_min+ y_width, nullptr);
+  LineTo(x, x_max, y_min + y_width);
+  MoveToEx(x, x_min, y_max- y_width, nullptr);
+  LineTo(x, x_max, y_max - y_width);
   DeleteObject(h_my_pen);
 
 }
@@ -197,9 +195,9 @@ void DrawX(HDC hdc,int x, int y)
 {
   HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(200, 150, 100));
   SelectObject(hdc, h_my_pen);
-  MoveToEx(hdc, x - 10, y - 10, NULL);
+  MoveToEx(hdc, x - 10, y - 10, nullptr);
   LineTo(hdc, x + 10, y + 10);
-  MoveToEx(hdc, x - 10, y + 10, NULL);
+  MoveToEx(hdc, x - 10, y + 10, nullptr);
   LineTo(hdc, x + 10, y - 10);
   DeleteObject(h_my_pen);
 }
