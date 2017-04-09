@@ -58,9 +58,9 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
             CheckRadioButton(hwndDlg, IDC_RADIO1, IDC_RADIO2, IDC_RADIO2);
           }
           ReleaseDC(hwndDlg, hdc);
-          for (int i = 0; i < 3; i++)
+          for (int i = 0; i < 3; ++i)
           {
-            for (int j = 0; j < 3; j++)
+            for (int j = 0; j < 3; ++j)
             {
               is_field_ocupied_by_first_player[i][j] = false;
               is_field_ocupied_by_second_player[i][j] = false;
@@ -169,7 +169,7 @@ void ClearBoard(HDC x)
   COLORREF BgColorB = GetBValue(color);
   HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(BgColorR, BgColorG, BgColorB));
   SelectObject(x, h_my_pen);
-  for (int i = 0; i<x_max; i++)
+  for (int i = 0; i<x_max; ++i)
   {
     MoveToEx(x, i, y_min, nullptr);
     LineTo(x, i, y_max);
@@ -212,9 +212,9 @@ void DrawO(HDC hdc, int x, int y)
 }
 void RedrawBoard(HDC hdc)
 {
-  for (int i_field_x = 0; i_field_x < 3; i_field_x++)
+  for (int i_field_x = 0; i_field_x < 3; ++i_field_x)
   {
-    for (int i_field_y = 0; i_field_y < 3; i_field_y++)
+    for (int i_field_y = 0; i_field_y < 3; ++i_field_y)
     {
       if (is_field_ocupied_by_first_player[i_field_x][i_field_y] == true)
       {
@@ -231,7 +231,7 @@ int GameResult(HWND hwndDlg, HDC x)
 {
   HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(255, 125, 125));
   SelectObject(x, h_my_pen);
-  for (int i = 0; i < 3; i++)
+  for (int i = 0; i < 3; ++i)
   {
     if ((result_tab[3 * i] == result_tab[3 * i + 1]) && (result_tab[3 * i] == result_tab[3 * i + 2]))
     {
