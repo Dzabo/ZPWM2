@@ -2,12 +2,17 @@
 #include "res.h"
 #include <stdio.h>
 
-#define x_min 150
-#define x_max 300
-#define y_min 100
-#define y_max 250
-#define x_width 50
-#define y_width 50
+#define X_MIN 150
+#define X_MAX 300
+#define Y_MIN 100
+#define Y_MAX 250
+#define X_WIDTH 50
+#define Y_WIDTH 50
+#define TAB_SIZE_X 3
+#define TAB_SIZE_Y 3
+#define COLOR_O RGB(100,150, 200)
+#define COLOR_X RGB(200, 150, 100)
+#define COLOR_BOARD RGB(255, 125, 125)
 
 int result_tab[9] = { 0 };
 int licznik = 0;
@@ -15,8 +20,8 @@ CHAR sz_text[500];
 
 bool is_game_on=false;
 bool is_first_player_turn =true;
-bool is_field_ocupied_by_first_player[3][3];
-bool is_field_ocupied_by_second_player[3][3];
+bool is_field_ocupied_by_first_player[TAB_SIZE_X][TAB_SIZE_Y];
+bool is_field_ocupied_by_second_player[TAB_SIZE_X][TAB_SIZE_Y];
 void DrawBoard(HDC x);
 void DrawX(HDC hdc, int x, int y);
 void DrawO(HDC hdc, int x, int y);
@@ -58,9 +63,9 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
             CheckRadioButton(hwndDlg, IDC_RADIO1, IDC_RADIO2, IDC_RADIO2);
           }
           ReleaseDC(hwndDlg, hdc);
-          for (int i = 0; i < 3; ++i)
+          for (int i = 0; i < TAB_SIZE_X; ++i)
           {
-            for (int j = 0; j < 3; ++j)
+            for (int j = 0; j < TAB_SIZE_Y; ++j)
             {
               is_field_ocupied_by_first_player[i][j] = false;
               is_field_ocupied_by_second_player[i][j] = false;
@@ -96,15 +101,15 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
     {
       int x = LOWORD(lParam);
       int y = HIWORD(lParam);
-      if ((x > x_min && x < x_max) && ((y > y_min) && (y < y_max)))
+      if ((x > X_MIN && x < X_MAX) && ((y > Y_MIN) && (y < Y_MAX)))
       {
-        int filed_x = ((x - x_min) / x_width);
-        int filed_y = ((y - y_min) / y_width);
+        int filed_x = ((x - X_MIN) / X_WIDTH);
+        int filed_y = ((y - Y_MIN) / Y_WIDTH);
         if (is_field_ocupied_by_first_player[filed_x][filed_y] == false
           && is_field_ocupied_by_second_player[filed_x][filed_y] == false)
         {
-          x = (filed_x * x_width) + (x_min+(x_width/2));
-          y = (filed_y * y_width) + (y_min + (y_width / 2));
+          x = (filed_x * X_WIDTH) + (X_MIN+(X_WIDTH/2));
+          y = (filed_y * Y_WIDTH) + (Y_MIN + (Y_WIDTH / 2));
           if (is_first_player_turn == true)
           {
             DrawX(hdc, x, y);
@@ -169,31 +174,31 @@ void ClearBoard(HDC x)
   COLORREF BgColorB = GetBValue(color);
   HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(BgColorR, BgColorG, BgColorB));
   SelectObject(x, h_my_pen);
-  for (int i = 0; i<x_max; ++i)
+  for (int i = 0; i<X_MAX; ++i)
   {
-    MoveToEx(x, i, y_min, nullptr);
-    LineTo(x, i, y_max);
+    MoveToEx(x, i, Y_MIN, nullptr);
+    LineTo(x, i, Y_MAX);
   }
   DeleteObject(h_my_pen);
 }
 void DrawBoard(HDC x)
 {
-  HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(255, 125, 125));
+  HPEN h_my_pen = CreatePen(PS_SOLID, 2, COLOR_BOARD);
   SelectObject(x, h_my_pen);
-  MoveToEx(x, x_min+ x_width, y_min, nullptr);
-  LineTo(x, x_min + x_width, y_max);
-  MoveToEx(x, x_max- x_width, y_min, nullptr);
-  LineTo(x, x_max - x_width, y_max);
-  MoveToEx(x, x_min, y_min+ y_width, nullptr);
-  LineTo(x, x_max, y_min + y_width);
-  MoveToEx(x, x_min, y_max- y_width, nullptr);
-  LineTo(x, x_max, y_max - y_width);
+  MoveToEx(x, X_MIN+ X_WIDTH, Y_MIN, nullptr);
+  LineTo(x, X_MIN + X_WIDTH, Y_MAX);
+  MoveToEx(x, X_MAX- X_WIDTH, Y_MIN, nullptr);
+  LineTo(x, X_MAX - X_WIDTH, Y_MAX);
+  MoveToEx(x, X_MIN, Y_MIN+ Y_WIDTH, nullptr);
+  LineTo(x, X_MAX, Y_MIN + Y_WIDTH);
+  MoveToEx(x, X_MIN, Y_MAX- Y_WIDTH, nullptr);
+  LineTo(x, X_MAX, Y_MAX - Y_WIDTH);
   DeleteObject(h_my_pen);
 
 }
 void DrawX(HDC hdc,int x, int y)
 {
-  HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(200, 150, 100));
+  HPEN h_my_pen = CreatePen(PS_SOLID, 2, COLOR_X);
   SelectObject(hdc, h_my_pen);
   MoveToEx(hdc, x - 10, y - 10, nullptr);
   LineTo(hdc, x + 10, y + 10);
@@ -203,7 +208,7 @@ void DrawX(HDC hdc,int x, int y)
 }
 void DrawO(HDC hdc, int x, int y)
 {
-  HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(100,150, 200));
+  HPEN h_my_pen = CreatePen(PS_SOLID, 2, COLOR_O);
   SelectObject(hdc, h_my_pen);
   Ellipse(hdc, x-15, y-15, x+15, y+15);
   DeleteObject(h_my_pen);
@@ -212,17 +217,17 @@ void DrawO(HDC hdc, int x, int y)
 }
 void RedrawBoard(HDC hdc)
 {
-  for (int i_field_x = 0; i_field_x < 3; ++i_field_x)
+  for (int i_field_x = 0; i_field_x < TAB_SIZE_X; ++i_field_x)
   {
-    for (int i_field_y = 0; i_field_y < 3; ++i_field_y)
+    for (int i_field_y = 0; i_field_y < TAB_SIZE_Y; ++i_field_y)
     {
       if (is_field_ocupied_by_first_player[i_field_x][i_field_y] == true)
       {
-        DrawX(hdc, (i_field_x * x_width + (x_min + (x_width / 2))), (i_field_y * y_width + (y_min + (y_width / 2))));
+        DrawX(hdc, (i_field_x * X_WIDTH + (X_MIN + (X_WIDTH / 2))), (i_field_y * Y_WIDTH + (Y_MIN + (Y_WIDTH / 2))));
       }
       if (is_field_ocupied_by_second_player[i_field_x][i_field_y] == true)
       {
-        DrawO(hdc, (i_field_x * x_width + (x_min + (x_width / 2))), (i_field_y * y_width + (y_min + (y_width / 2))));
+        DrawO(hdc, (i_field_x * X_WIDTH + (X_MIN + (X_WIDTH / 2))), (i_field_y * Y_WIDTH + (Y_MIN + (Y_WIDTH / 2))));
       }
     }
   }
