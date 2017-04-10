@@ -15,6 +15,7 @@
 #define COLOR_BOARD RGB(255, 125, 125)
 
 int result_tab[9] = { 0 };
+int continue_game;
 int licznik = 0;
 CHAR sz_text[500];
 
@@ -137,9 +138,9 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
     DrawBoard(hdc);
     RedrawBoard(hdc);   
     ReleaseDC(hwndDlg,hdc);
-    return DefWindowProc(hwndDlg, uMsg, wParam, lParam);
     }
-  case WM_CLOSE:
+    return TRUE;
+	case WM_CLOSE:
 		DestroyWindow(hwndDlg); // zniszczenie okna
 		PostQuitMessage(0); //Komunikat polecenia zakoñczenia aplikacji
 		return TRUE;
@@ -157,7 +158,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	ShowWindow(hwndMainWindow, iCmdShow);
 	
 	MSG msg = {};
-	while (GetMessage(&msg, nullptr, 0, 0))
+	while (GetMessage(&msg, NULL, 0, 0))
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -200,9 +201,9 @@ void DrawX(HDC hdc,int x, int y)
 {
   HPEN h_my_pen = CreatePen(PS_SOLID, 2, COLOR_X);
   SelectObject(hdc, h_my_pen);
-  MoveToEx(hdc, x - 10, y - 10, nullptr);
+  MoveToEx(hdc, x - 10, y - 10, NULL);
   LineTo(hdc, x + 10, y + 10);
-  MoveToEx(hdc, x - 10, y + 10, nullptr);
+  MoveToEx(hdc, x - 10, y + 10, NULL);
   LineTo(hdc, x + 10, y - 10);
   DeleteObject(h_my_pen);
 }
@@ -236,7 +237,7 @@ int GameResult(HWND hwndDlg, HDC x)
 {
   HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(255, 125, 125));
   SelectObject(x, h_my_pen);
-  for (int i = 0; i < 3; ++i)
+  for (int i = 0; i < 3; i++)
   {
     if ((result_tab[3 * i] == result_tab[3 * i + 1]) && (result_tab[3 * i] == result_tab[3 * i + 2]))
     {
@@ -310,10 +311,8 @@ int GameResult(HWND hwndDlg, HDC x)
     is_game_on = false;
     wsprintf(sz_text, "START");
     SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
-    return TRUE;
   }
   DeleteObject(h_my_pen);
-  return TRUE;
 }
 //Rysowanie
 //LineTo
@@ -322,3 +321,4 @@ int GameResult(HWND hwndDlg, HDC x)
 //TextOut
 //GetPixel
 //SetPixel
+// TextOut(hdc, 0, 0, sz_text, strlen(sz_text)); //napsize start w lewym gornym, ogarn¹c
