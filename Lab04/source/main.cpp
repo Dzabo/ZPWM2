@@ -138,6 +138,7 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
     DrawBoard(hdc);
     RedrawBoard(hdc);   
     ReleaseDC(hwndDlg,hdc);
+    return DefWindowProc(hwndDlg, uMsg, wParam, lParam);
     }
     return TRUE;
 	case WM_CLOSE:
