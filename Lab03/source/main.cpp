@@ -35,90 +35,22 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 	{
 	
 
+	case WM_COMMAND:
+	{
+		switch (HIWORD(wParam))
+		{
 
-
-  switch (uMsg)
-  {
-    case WM_COMMAND:
-    {
-      switch (HIWORD(wParam))
+		case BN_CLICKED://Zdarzenie klikniêcia 
+			switch (LOWORD(wParam))
+			{
+			case IDC_BUTTON10://Klikniêcie na nsz przycisk Button1
       {
-          case BN_CLICKED:
-          {
-              switch (LOWORD(wParam))
-              {
-                  case IDC_BUTTON10:
-                  {
-                      if (is_game_on==false)
-                      {
-                        if (is_player_cross == true)
-                          {
-                             CheckRadioButton(hwndDlg, IDC_RADIO1, IDC_RADIO2, IDC_RADIO1);
-                          }
-                          else
-                          {
-                              CheckRadioButton(hwndDlg, IDC_RADIO1, IDC_RADIO2, IDC_RADIO2);
-                          }
-                          is_game_on = true;
-                          wsprintf(sz_text, "Gra siê rozpoczê³a!");
-                          SetWindowText(hwnd_static1, sz_text);
-                          wsprintf(sz_text, "W trakcie rozgrywki");
-                          SetWindowText(hwnd_static3, sz_text);
-                          for (int i = 0; i < 9; i++)
-                          {
-                            HWND hwnd_button = GetDlgItem(hwndDlg, IDC_BUTTON1 + i);
-                              wsprintf(sz_text, "");
-                              SetWindowText(hwnd_button, sz_text);
-                          }
-              
-                          wsprintf(sz_text, "Zakoñcz Grê");
-                          SetWindowText(hwnd_button10, sz_text);
-                      }
-                      else
-                      {
-                          wsprintf(sz_text, "Rozpocznij Grê!");
-                          SetWindowText(hwnd_button10, sz_text);
-                          wsprintf(sz_text, "Rozgrywka nieaktywna");
-                          SetWindowText(hwnd_static1, sz_text);
-                          wsprintf(sz_text, "");
-                          SetWindowText(hwnd_static3, sz_text);
-                          is_game_on = !is_game_on;
-                          //PostQuitMessage(0);
-                      }
-                      return TRUE;
-                  }
-                  case IDC_BUTTON1:
-                  case IDC_BUTTON2:
-                  case IDC_BUTTON3:
-                  case IDC_BUTTON4:
-                  case IDC_BUTTON5:
-                  case IDC_BUTTON6:
-                  case IDC_BUTTON7:
-                  case IDC_BUTTON8:
-                  case IDC_BUTTON9:
-                  {
-                    if (is_game_on)
-                      {
-                        HWND hwnd_button = (HWND)lParam;//uchwyt na przycisk
-                        if (GetWindowTextLength(hwnd_button) == 0)
-                        {
-                          if (is_player_cross)
-                          {
-                            wsprintf(sz_text, "X");
-                          }
-                          else
-                          {
-                            wsprintf(sz_text, "O");
-                          }
-                          SetWindowText(hwnd_button, sz_text);
-                          is_player_cross = !is_player_cross;
-                        }
-                      }
-                    return TRUE;
-                  }
-                  return FALSE;
-              }
-              return FALSE;
+        if (is_game_on ==false)
+        {
+        if(is_first_player_turn = true)
+        {
+          CheckRadioButton(hwndDlg, IDC_RADIO1, IDC_RADIO2, IDC_RADIO1);
+          
           }
         else
         
