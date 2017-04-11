@@ -28,7 +28,7 @@ void DrawX(HDC hdc, int x, int y);
 void DrawO(HDC hdc, int x, int y);
 void RedrawBoard(HDC hdc);
 void ClearBoard(HDC hdc);
-int GameResult(HWND hwndDlg, HDC x);
+bool GameResult(HWND hwndDlg, HDC x);
 
 
 INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)//Funkcja obs³ugi komunikatów
@@ -140,7 +140,9 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
     ReleaseDC(hwndDlg,hdc);
     return DefWindowProc(hwndDlg, uMsg, wParam, lParam);
     }
-    return TRUE;
+    // ReSharper disable CppUnreachableCode
+    //return TRUE;
+    // ReSharper restore CppUnreachableCode
 	case WM_CLOSE:
 		DestroyWindow(hwndDlg); // zniszczenie okna
 		PostQuitMessage(0); //Komunikat polecenia zakoñczenia aplikacji
@@ -234,7 +236,7 @@ void RedrawBoard(HDC hdc)
     }
   }
 }
-int GameResult(HWND hwndDlg, HDC x)
+bool GameResult(HWND hwndDlg, HDC x)
 {
   HPEN h_my_pen = CreatePen(PS_SOLID, 2, RGB(255, 125, 125));
   SelectObject(x, h_my_pen);
@@ -312,8 +314,10 @@ int GameResult(HWND hwndDlg, HDC x)
     is_game_on = false;
     wsprintf(sz_text, "START");
     SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
+    return TRUE;
   }
   DeleteObject(h_my_pen);
+  return TRUE;
 }
 //Rysowanie
 //LineTo
