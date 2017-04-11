@@ -131,6 +131,7 @@
     <Image Include="..\resource\start.bmp" />
     <Image Include="..\resource\X.bmp" />
     <Image Include="..\source\ikona.ico" />
+    <Image Include="G:\OWIECZKA\resource\Menu.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

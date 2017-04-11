@@ -26,6 +26,7 @@ HBITMAP hBitmapO;
 HBITMAP hBitmapRes;
 HBITMAP hBitmapStart;
 
+
 bool is_game_on = false;
 bool is_first_player_turn = true;
 bool is_field_ocupied_by_first_player[TAB_SIZE_X][TAB_SIZE_Y];
