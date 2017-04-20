@@ -164,7 +164,7 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
   case WM_INITDIALOG:
   {
     //WNDPROC wpOrgButtonProc = (WNDPROC)SetWindowLong(hwndButton10, -4, (LONG)ButtonWndProc);
-    CreateStart(hwndDlg, hInst);
+    CreateStart(hwndDlg, hInst); // RYSOWANIE STARTU, BRAK FUNKCJONALNOSCI
     hBitmapGameBoard = LoadBitmap(hInst, MAKEINTRESOURCE(IDB_BOARD));
     hBitmapO = LoadBitmap(hInst, MAKEINTRESOURCE(IDB_O));
     hBitmapX = LoadBitmap(hInst, MAKEINTRESOURCE(IDB_X));
@@ -347,7 +347,7 @@ void CreateStart(HWND hwnd, HINSTANCE hInstance)
   HWND button = CreateWindow("BUTTON",
     "My Button",
     WS_VISIBLE | WS_CHILD | BS_BITMAP,
-    20, 80, 100, 40,
+    20, 100, 100, 40,
     hwnd,
     NULL,
     hInstance,
