@@ -455,8 +455,8 @@ GLint DrawGLScene()
   glLoadIdentity();
   static GLfloat fAngle = 0.0;
   fAngle += 0.01f;
-  glTranslatef(0, 0, -400);
-  glRotatef(fAngle, 1, 1, 1);
+  glTranslatef(0, 0, -300);
+  glRotatef(fAngle, 0, 1, 0);
 
 
 
@@ -540,8 +540,8 @@ void glDrawBoard()
 void glDrawX(int a, int b, int c)
 {
   glBegin(GL_TRIANGLES);
-
-  //dó³
+  /* STARE
+  //dó³ 
   glColor3d(1, 1, 0);
 
   glVertex3d(a + 5, b + 5, c - 0);
@@ -617,7 +617,138 @@ void glDrawX(int a, int b, int c)
   glVertex3d(a + 11, b + 44, c - 10);//
   
   //BOKI DOROBIC
+  */
 
+  //front
+  {
+    glColor3d(1, 0, 1);
+
+    glVertex3d(a + 5, b + 5, c - 0);
+    glVertex3d(a + 15, b + 5, c - 0);
+    glVertex3d(a + 38, b + 41, c - 0);//
+
+    glVertex3d(a + 38, b + 41, c - 0);
+    glVertex3d(a + 28, b + 41, c - 0);
+    glVertex3d(a + 5, b + 5, c - 0);//
+
+    glVertex3d(a + 5, b + 41, c - 0);
+    glVertex3d(a + 15, b + 41, c - 0);
+    glVertex3d(a + 38, b + 5, c - 0);//
+
+    glVertex3d(a + 38, b + 5, c - 0);
+    glVertex3d(a + 28, b + 5, c - 0);
+    glVertex3d(a + 5, b + 41, c - 0);
+  }
+
+  //ty³
+  {
+    glColor3d(1, 1, 0);
+
+    glVertex3d(a + 5, b + 5, c - 10);
+    glVertex3d(a + 15, b + 5, c - 10);
+    glVertex3d(a + 38, b + 41, c - 10);//
+
+    glVertex3d(a + 38, b + 41, c - 10);
+    glVertex3d(a + 28, b + 41, c - 10);
+    glVertex3d(a + 5, b + 5, c - 10);//
+
+    glVertex3d(a + 5, b + 41, c - 10);
+    glVertex3d(a + 15, b + 41, c - 10);
+    glVertex3d(a + 38, b + 5, c - 10);//
+
+    glVertex3d(a + 38, b + 5, c - 10);
+    glVertex3d(a + 28, b + 5, c - 10);
+    glVertex3d(a + 5, b + 41, c - 10);
+  }
+
+  //dó³
+  {
+    glColor3d(0, 0, 1);
+
+    //lewy dol
+    glVertex3d(a + 5, b + 5, c - 0);
+    glVertex3d(a + 15, b + 5, c - 0);
+    glVertex3d(a + 5, b + 5, c - 10);
+
+    glVertex3d(a + 15, b + 5, c - 10);
+    glVertex3d(a + 5, b + 5, c - 10);
+    glVertex3d(a + 15, b + 5, c - 0);
+
+    //lewy gora
+    glVertex3d(a + 5, b + 41, c - 0);
+    glVertex3d(a + 15, b + 41, c - 0);
+    glVertex3d(a + 5, b + 41, c - 10);
+
+
+    glVertex3d(a + 15, b + 41, c - 10);
+    glVertex3d(a + 5, b + 41, c - 10);
+    glVertex3d(a + 15, b + 41, c - 0);
+  }
+  //góra
+  {
+    glColor3d(0, 0, 1);
+
+    //prawy dol
+    glVertex3d(a + 28, b + 5, c - 0);
+    glVertex3d(a + 38, b + 5, c - 0);
+    glVertex3d(a + 28, b + 5, c - 10);
+
+    glVertex3d(a + 38, b + 5, c - 10);
+    glVertex3d(a + 28, b + 5, c - 10);
+    glVertex3d(a + 38, b + 5, c - 0);
+
+    //prawy gora
+    glVertex3d(a + 28, b + 41, c - 0);
+    glVertex3d(a + 38, b + 41, c - 0);
+    glVertex3d(a + 28, b + 41, c - 10);
+
+
+    glVertex3d(a + 38, b + 41, c - 10);
+    glVertex3d(a + 28, b + 41, c - 10);
+    glVertex3d(a + 38, b + 41, c - 0);
+  }
+  //boki
+  {
+    glColor3d(0, 1, 1);
+
+    //1
+    glVertex3d(a + 5, b + 5, c - 0);
+    glVertex3d(a + 28, b + 41, c - 0);
+    glVertex3d(a + 5, b + 5, c - 10);//
+
+    glVertex3d(a + 28, b + 41, c - 0);
+    glVertex3d(a + 28, b + 41, c - 10);
+    glVertex3d(a + 5, b + 5, c - 10);//
+
+    //2
+    glVertex3d(a + 15, b + 5, c - 0);
+    glVertex3d(a + 38, b + 41, c - 0);
+    glVertex3d(a + 15, b + 5, c - 10);//
+
+    glVertex3d(a + 38, b + 41, c - 0);
+    glVertex3d(a + 38, b + 41, c - 10);
+    glVertex3d(a + 15, b + 5, c - 10);//
+
+    //3
+    glVertex3d(a + 5, b + 41, c - 0);
+    glVertex3d(a + 28, b + 5, c - 0);
+    glVertex3d(a + 5, b + 41, c - 10);//
+
+    glVertex3d(a + 28, b + 5, c - 0);
+    glVertex3d(a + 28, b + 5, c - 10);
+    glVertex3d(a + 5, b + 41, c - 10);//
+
+    //4
+    glVertex3d(a + 15, b + 41, c - 0);
+    glVertex3d(a + 38, b + 5, c - 0);
+    glVertex3d(a + 15, b + 41, c - 10);//
+
+    glVertex3d(a + 38, b + 5, c - 0);
+    glVertex3d(a + 38, b + 5, c - 10);
+    glVertex3d(a + 15, b + 41, c - 10);//
+
+
+  }
   glEnd();
 }
 
