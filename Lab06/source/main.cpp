@@ -622,7 +622,7 @@ void glDrawX(int a, int b, int c)
   //front
   {
     glColor3d(1, 0, 1);
-
+    glNormal3d(1, 0, 0);
     glVertex3d(a + 5, b + 5, c - 0);
     glVertex3d(a + 15, b + 5, c - 0);
     glVertex3d(a + 38, b + 41, c - 0);//
@@ -643,7 +643,7 @@ void glDrawX(int a, int b, int c)
   //ty³
   {
     glColor3d(1, 1, 0);
-
+    glNormal3d(-1, 0, 0);
     glVertex3d(a + 5, b + 5, c - 10);
     glVertex3d(a + 15, b + 5, c - 10);
     glVertex3d(a + 38, b + 41, c - 10);//
@@ -666,6 +666,7 @@ void glDrawX(int a, int b, int c)
     glColor3d(0, 0, 1);
 
     //lewy dol
+    glNormal3d(0, -1, 0);
     glVertex3d(a + 5, b + 5, c - 0);
     glVertex3d(a + 15, b + 5, c - 0);
     glVertex3d(a + 5, b + 5, c - 10);
@@ -675,6 +676,7 @@ void glDrawX(int a, int b, int c)
     glVertex3d(a + 15, b + 5, c - 0);
 
     //lewy gora
+    glNormal3d(0, 1, 0);
     glVertex3d(a + 5, b + 41, c - 0);
     glVertex3d(a + 15, b + 41, c - 0);
     glVertex3d(a + 5, b + 41, c - 10);
@@ -689,6 +691,7 @@ void glDrawX(int a, int b, int c)
     glColor3d(0, 0, 1);
 
     //prawy dol
+    glNormal3d(0, -1, 0);
     glVertex3d(a + 28, b + 5, c - 0);
     glVertex3d(a + 38, b + 5, c - 0);
     glVertex3d(a + 28, b + 5, c - 10);
@@ -698,6 +701,7 @@ void glDrawX(int a, int b, int c)
     glVertex3d(a + 38, b + 5, c - 0);
 
     //prawy gora
+    glNormal3d(0, 1, 0);
     glVertex3d(a + 28, b + 41, c - 0);
     glVertex3d(a + 38, b + 41, c - 0);
     glVertex3d(a + 28, b + 41, c - 10);
@@ -712,6 +716,7 @@ void glDrawX(int a, int b, int c)
     glColor3d(0, 1, 1);
 
     //1
+    glNormal3d(-1, 1, 0);
     glVertex3d(a + 5, b + 5, c - 0);
     glVertex3d(a + 28, b + 41, c - 0);
     glVertex3d(a + 5, b + 5, c - 10);//
@@ -721,6 +726,7 @@ void glDrawX(int a, int b, int c)
     glVertex3d(a + 5, b + 5, c - 10);//
 
     //2
+    glNormal3d(1, -1, 0);
     glVertex3d(a + 15, b + 5, c - 0);
     glVertex3d(a + 38, b + 41, c - 0);
     glVertex3d(a + 15, b + 5, c - 10);//
