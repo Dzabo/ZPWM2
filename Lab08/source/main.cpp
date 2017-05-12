@@ -261,7 +261,7 @@ int i;
 // DO DOMU SKOMPONOWAC UTWOR TRWAJACY MINIMUM 35 SEKUND 
 // char sNotes = "E E E C G ";
 // char sTime = "16 16 16 8 4";
-//w taki sposób ma byæ zrealizowane 
+//w taki sposób ma byæ zrealizowane  
 
 /*
 MessageBox(0 , "Treœæ wyœwietlana" , "Tytu³" , Rodzaj); // zwracany typ int
