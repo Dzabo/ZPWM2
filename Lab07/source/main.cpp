@@ -28,6 +28,8 @@ int licznik = 0;
 CHAR sz_text[500];
 GLuint idTexture;
 float fStep=1;
+int xparam;
+int yparam;
 
 HINSTANCE hInst;
 HBITMAP hBitmapGameBoard;
@@ -57,130 +59,39 @@ void glDrawX(int a, int b, int c);
 void glDrawO(int a, int b, int c);
 unsigned char* ReadBmpFromFile(char* szFileName, int &riWidth, int &riHeight);
 
-LRESULT CALLBACK ButtonWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-  switch (uMsg)
-  {
-  case WM_PAINT:
-  {
-    HDC hdc = GetDC(hwnd);
-    HDC hDCBitmap;
-    hDCBitmap = CreateCompatibleDC(hdc);
-    SelectObject(hDCBitmap, hBitmapStart);
-    BitBlt(hdc, 0, 0, 100, 40, hDCBitmap, 0, 0, SRCCOPY);
-    DeleteDC(hDCBitmap);
-    ReleaseDC(hwnd, hdc);
-    return FALSE;
-  }
-  default:return DefWindowProc(hwnd, uMsg, wParam, lParam);
-  }
-}
 
-INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)//Funkcja obs³ugi komunikatów
+INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)//Funkcja obs3ugi komunikatów
 {
 
-  HWND hwndStatic5 = GetDlgItem(hwndDlg, IDC_STATIC5);
-  HWND hwndButton10 = GetDlgItem(hwndDlg, IDC_BUTTON10);
   switch (uMsg)
   {
   case WM_COMMAND:
   {
     switch (HIWORD(wParam))
     {
-    case BN_CLICKED://Zdarzenie klikniêcia 
+    case BN_CLICKED://Zdarzenie klikniecia 
     {
       switch (LOWORD(wParam))
       {
-      case IDC_BUTTON10://Klikniêcie na nsz przycisk Button1
-      {
-        HDC hdc = GetDC(hwndDlg);
-        //ClearBoard(hdc);
-        DrawBoard(hdc);
-        licznik = 0;
-        if (is_game_on == false)
-        {
-          if (is_first_player_turn == true)
-          {
-            CheckRadioButton(hwndDlg, IDC_RADIO1, IDC_RADIO2, IDC_RADIO1);
-          }
-          else
-          {
-            CheckRadioButton(hwndDlg, IDC_RADIO1, IDC_RADIO2, IDC_RADIO2);
-          }
-          ReleaseDC(hwndDlg, hdc);
-          for (int i = 0; i < TAB_SIZE_X; ++i)
-          {
-            for (int j = 0; j < TAB_SIZE_Y; ++j)
-            {
-              is_field_ocupied_by_first_player[i][j] = false;
-              is_field_ocupied_by_second_player[i][j] = false;
-              result_tab[3 * j + i] = 0;
-            }
-          }
-          wsprintf(sz_text, "Gra siê rozpoczê³¹");
-          SetWindowText(hwndStatic5, sz_text);
-          wsprintf(sz_text, "STOP");
-          SetWindowText(hwndButton10, sz_text);
-          is_game_on = true;
-        }
-        else
-        {
-          wsprintf(sz_text, "START");
-          SetWindowText(hwndButton10, sz_text);
-          wsprintf(sz_text, "Rozpocznij grê");
-          SetWindowText(hwndStatic5, sz_text);
-          is_game_on = false;
-        }
-        return TRUE;
-      }
       default:;
       }
     }
     return TRUE;
     default:;
     }
+    return TRUE;
   }
-  return TRUE;
   case WM_LBUTTONDOWN:
   {
-    HDC hdc = GetDC(hwndDlg);
-    GameResult(hwndDlg, hdc);
-    if (is_game_on == true)
-    {
-      int x = LOWORD(lParam);
-      int y = HIWORD(lParam);
-      if ((x > X_MIN && x < X_MAX) && ((y > Y_MIN) && (y < Y_MAX)))
-      {
-        int filed_x = ((x - X_MIN) / X_WIDTH);
-        int filed_y = ((y - Y_MIN) / Y_WIDTH);
-        if (is_field_ocupied_by_first_player[filed_x][filed_y] == false
-          && is_field_ocupied_by_second_player[filed_x][filed_y] == false)
-        {
-          x = (filed_x * X_WIDTH) + (X_MIN + (X_WIDTH / 2));
-          y = (filed_y * Y_WIDTH) + (Y_MIN + (Y_WIDTH / 2));
-          if (is_first_player_turn == true)
-          {
-            DrawX(hdc, x, y);
-            is_field_ocupied_by_first_player[filed_x][filed_y] = true;
-            result_tab[3 * (filed_y)+(filed_x)] = 1;
-            licznik++;
-          }
-          else
-          {
-            DrawO(hdc, x, y);
-            is_field_ocupied_by_second_player[filed_x][filed_y] = true;
-            result_tab[3 * (filed_y)+(filed_x)] = 2;
-            licznik++;
-          }
-          ReleaseDC(hwndDlg, hdc);
-          is_first_player_turn = !is_first_player_turn;
-        }
-      }
-    }
-
+    glPushMatrix();
+    glTranslatef(1, 1, 0);
+    glDrawX(25, 25, 0);
+    glPopMatrix();
+    xparam = LOWORD(lParam);
+    yparam = HIWORD(lParam);
+    SetTimer(hwndDlg, 3, 100, NULL);
     fStep=1;
-    SetTimer(hwndDlg,1,1000,NULL);
-
+    //SetTimer(hwndDlg,1,1000,NULL);
     return TRUE;
   }
   
@@ -198,30 +109,31 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
       glPushMatrix();
       glTranslatef(1, 1, 0);
       static float fangle = 0;
-      glRotatef(fangle, 0, 1, 0);
-      fangle += fStep;
+      //glRotatef(fangle, 0, 1, 0);
+      //fangle += fStep;
       glDrawBoard();
       glPopMatrix();
       glPushMatrix();
-      glTranslatef(1, 1, 0);
-      glRotatef(fangle, 0, 0, 1);
-      fangle += fStep;
-      glDrawX(-25, -25, 0);
+      glTranslatef(-25, -25, 0);
+     // glRotatef(fangle, 0, 0, 1);
+      //fangle += fStep;
+      glDrawX(0,0, 0);
       glPopMatrix();
       glPushMatrix();
-      glTranslatef(1, 1, 0);
-      glRotatef(fangle, 1, 1, 0);
-      fangle += fStep;
-      glDrawO(35, 35, 0);
+      glTranslatef(35, 35, 0);
+     // glRotatef(fangle, 1, 1, 0);
+      //fangle += fStep;
+      glDrawO(0, 0, 0);
       glPopMatrix();
-      glPushMatrix();
-      glTranslatef(-100, -100, 0);
-      glRotatef(fangle, 0, 1, 1);
-      fangle += fStep;
-      glDrawO(35, 35, 0);
-      glPopMatrix();
-      //przerobiæ funkcjê ¿eby jednak nie by³a zale¿na od a b c
+      //przerobia funkcje ?eby jednak nie by3a zale?na od a b c
       SwapBuffers(hDc);
+    }
+    if(wParam==3)
+    {
+      glPushMatrix();
+      glTranslatef(xparam, yparam, 0);
+      glDrawX(25, 25, 0);
+      glPopMatrix();
     }
     return TRUE;
   }
@@ -236,7 +148,7 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
     SetWindowLong(hwndDlg, GWL_STYLE, CS_HREDRAW | CS_VREDRAW | CS_OWNDC | WS_OVERLAPPEDWINDOW);
     //SetClassLong(hwndDlg,GCL_STYLE,CS_HREDRAW|CS_VREDRAW|CS_OWNDC); //Silniejsza funkcja SetWindowLong
 
-    //Stworzyæ maszynê stanu
+    //Stworzya maszyne stanu
     static PIXELFORMATDESCRIPTOR pfd = {
       sizeof(PIXELFORMATDESCRIPTOR), //rozmiar
       1,                            //wersja
@@ -262,10 +174,10 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
     PixelFormat = ChoosePixelFormat(hDc, &pfd); //sprawdzamy czy nasz format graficzny jest wspierany
                                                 //ustawiamy format
     SetPixelFormat(hDc, PixelFormat, &pfd);
-    //tworzymy maszynê stanu
+    //tworzymy maszyne stanu
     hRc = wglCreateContext(hDc);
     wglMakeCurrent(hDc, hRc);
-    //Podpi¹æ j¹ pod okno
+    //Podpi1a j1 pod okno
     //generowanie pojedynczyj tekstury cz2 start
 
     glGenTextures(1,&idTexture);
@@ -296,25 +208,16 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 
     //glLoadMatrix();
 
-    gluPerspective(45.0f, iWidth / (float)iHeight, 0.1f, 1000.0f); //k¹t widzenia, Rozmiar okna, Z min, Z max
+    gluPerspective(45.0f, iWidth / static_cast<float>(iHeight), 0.1f, 1000.0f); //k1t widzenia, Rozmiar okna, Z min, Z max
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     return TRUE;
   }
-  /*case WM_PAINT:
-  {
-    CreateStart(hwndDlg, hInst);
-    HDC hdc = GetDC(hwndDlg);
-    DrawBoard(hdc);
-    //    RedrawBoard(hdc);
-    ReleaseDC(hwndDlg, hdc);
-    return DefWindowProc(hwndDlg, uMsg, wParam, lParam);
-  }*/
   case WM_CLOSE:
   {
     DestroyWindow(hwndDlg); // zniszczenie okna
-    PostQuitMessage(0); //Komunikat polecenia zakoñczenia aplikacji
+    PostQuitMessage(0); //Komunikat polecenia zakonczenia aplikacji
   }
   return TRUE;
   default:;
@@ -335,51 +238,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
-
   }
-  /*BOOL bDone = false;
-  while (!bDone)
-  {
-    if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) //sprawdza czy jest cos do obs³u¿enia, jak nie to pozwala programowi przejœæ dalej
-    {
-      if (msg.message == WM_QUIT)bDone = true;
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
-    }
-    else
-    {
-      DrawGLScene();
-      //DrawCube1(1,1,1);
-      glPushMatrix();
-      glTranslatef(1, 1, 0);
-      static float fangle=0;
-      glRotatef(fangle,0,1,0);
-      fangle+=fStep;
-      glDrawBoard();
-      glPopMatrix();
-      glPushMatrix();
-      glTranslatef(1, 1, 0);
-      glRotatef(fangle, 0, 0, 1);
-      fangle += fStep;
-      glDrawX(-25,-25,0);
-      glPopMatrix();
-      glPushMatrix();
-      glTranslatef(1, 1, 0);
-      glRotatef(fangle, 1, 1, 0);
-      fangle += fStep;
-      glDrawO(35, 35, 0);
-      glPopMatrix();
-      glPushMatrix();
-      glTranslatef(-100, -100, 0);
-      glRotatef(fangle, 0, 1, 1);
-      fangle += fStep;
-      glDrawO(35, 35, 0);
-      glPopMatrix();
-      //przerobiæ funkcjê ¿eby jednak nie by³a zale¿na od a b c
-      SwapBuffers(hDc);
-    }
-  }*/
-
+ 
 }
 
 void ClearBoard(HDC x)
@@ -449,7 +309,7 @@ void GameResult(HWND hwndDlg, HDC x)
     {
       if (result_tab[3 * i] == 1)
       {
-        wsprintf(sz_text, "Krzy¿yk wygrywa");
+        wsprintf(sz_text, "Krzy?yk wygrywa");
         TextOut(x, 10, 230, sz_text, strlen(sz_text));
         is_game_on = false;
         wsprintf(sz_text, "START");
@@ -457,7 +317,7 @@ void GameResult(HWND hwndDlg, HDC x)
       }
       else if (result_tab[3 * i] == 2)
       {
-        wsprintf(sz_text, "Kó³ko wygrywa");
+        wsprintf(sz_text, "Kó3ko wygrywa");
         TextOut(x, 10, 230, sz_text, strlen(sz_text));
         is_game_on = false;
         wsprintf(sz_text, "START");
@@ -468,7 +328,7 @@ void GameResult(HWND hwndDlg, HDC x)
     {
       if (result_tab[i] == 1)
       {
-        wsprintf(sz_text, "Krzy¿yk wygrywa");
+        wsprintf(sz_text, "Krzy?yk wygrywa");
         TextOut(x, 10, 230, sz_text, strlen(sz_text));
         wsprintf(sz_text, "START");
         SetWindowText(GetDlgItem(hwndDlg, IDC_BUTTON10), sz_text);
@@ -476,7 +336,7 @@ void GameResult(HWND hwndDlg, HDC x)
       }
       else if (result_tab[i] == 2)
       {
-        wsprintf(sz_text, "Kó³ko wygrywa");
+        wsprintf(sz_text, "Kó3ko wygrywa");
         TextOut(x, 10, 230, sz_text, strlen(sz_text));
         is_game_on = false;
         wsprintf(sz_text, "START");
@@ -489,7 +349,7 @@ void GameResult(HWND hwndDlg, HDC x)
   {
     if (result_tab[4] == 1)
     {
-      wsprintf(sz_text, "Krzy¿yk wygrywa");
+      wsprintf(sz_text, "Krzy?yk wygrywa");
       TextOut(x, 10, 230, sz_text, strlen(sz_text));
       is_game_on = false;
       wsprintf(sz_text, "START");
@@ -497,7 +357,7 @@ void GameResult(HWND hwndDlg, HDC x)
     }
     else if (result_tab[4] == 2)
     {
-      wsprintf(sz_text, "Kó³ko wygrywa");
+      wsprintf(sz_text, "Kó3ko wygrywa");
       TextOut(x, 10, 230, sz_text, strlen(sz_text));
       is_game_on = false;
       wsprintf(sz_text, "START");
@@ -533,7 +393,7 @@ void CreateStart(HWND hwnd, HINSTANCE hInstance)
 //TextOut
 //GetPixel
 //SetPixel
-// TextOut(hdc, 0, 0, sz_text, strlen(sz_text)); //napsize start w lewym gornym, ogarn¹c
+// TextOut(hdc, 0, 0, sz_text, strlen(sz_text)); //napsize start w lewym gornym, ogarn1c
 
 GLint DrawGLScene()
 {
@@ -545,12 +405,9 @@ GLint DrawGLScene()
 
   glLoadIdentity();
   static GLfloat fAngle = 0.0;
-  fAngle += 0.01f;
+  fAngle += 1.01f;
   glTranslatef(0, 0, -300);
-  glRotatef(fAngle, 1, 0, 0);
-
-
-
+  glRotatef(fAngle, 0, 1, 0);
   return 1;
 }
 
@@ -577,85 +434,7 @@ void glDrawBoard()
 void glDrawX(int a, int b, int c)
 {
   glBegin(GL_TRIANGLES);
-  /* STARE
-  //dó³ 
-  glColor3d(1, 1, 0);
-
-  glVertex3d(a + 5, b + 5, c - 0);
-  glVertex3d(a + 15, b + 5, c - 0);
-  glVertex3d(a + 11, b + 8, c - 10);//
-
-  glVertex3d(a + 11, b + 8, c - 10);
-  glVertex3d(a + 21, b + 8, c - 10);
-  glVertex3d(a + 15, b + 5, c - 0);//
-
-  glVertex3d(a + 38, b + 5, c - 0);
-  glVertex3d(a + 28, b + 5, c - 0);
-  glVertex3d(a + 34, b + 8, c - 10);//
-
-  glVertex3d(a + 34, b + 8, c - 10);
-  glVertex3d(a + 44, b + 8, c - 10);
-  glVertex3d(a + 38, b + 5, c - 0);//
-
-                                   //góra
-  glColor3d(1, 1, 0);
-
-  glVertex3d(a + 5, b + 41, c - 0);
-  glVertex3d(a + 15, b + 41, c - 0);
-  glVertex3d(a + 11, b + 44, c - 10);//
-
-  glVertex3d(a + 11, b + 44, c - 10);
-  glVertex3d(a + 21, b + 44, c - 10);
-  glVertex3d(a + 15, b + 41, c - 0);//
-
-  glVertex3d(a + 38, b + 41, c - 0);
-  glVertex3d(a + 28, b + 41, c - 0);
-  glVertex3d(a + 34, b + 44, c - 10);//
-
-  glVertex3d(a + 34, b + 44, c - 10);
-  glVertex3d(a + 44, b + 44, c - 10);
-  glVertex3d(a + 38, b + 41, c - 0);//
-
-                                    //front
-  glColor3d(1, 0, 1);
-
-  glVertex3d(a + 5, b + 5, c - 0);
-  glVertex3d(a + 15, b + 5, c - 0);
-  glVertex3d(a + 38, b + 41, c - 0);//
-
-  glVertex3d(a + 38, b + 41, c - 0);
-  glVertex3d(a + 28, b + 41, c - 0);
-  glVertex3d(a + 5, b + 5, c - 0);//
-
-  glVertex3d(a + 5, b + 41, c - 0);
-  glVertex3d(a + 15, b + 41, c - 0);
-  glVertex3d(a + 38, b + 5, c - 0);//
-
-  glVertex3d(a + 38, b + 5, c - 0);
-  glVertex3d(a + 28, b + 5, c - 0);
-  glVertex3d(a + 5, b + 41, c - 0);//
-
-                                   //ty³
-  glColor3d(0, 1, 0);
-  glVertex3d(a + 11, b + 8, c - 10);
-  glVertex3d(a + 21, b + 8, c - 10);
-  glVertex3d(a + 44, b + 44, c - 10);//
-
-  glVertex3d(a + 44, b + 44, c - 10);
-  glVertex3d(a + 34, b + 44, c - 10);
-  glVertex3d(a + 11, b + 8, c - 10);//
-
-  glVertex3d(a + 11, b + 44, c - 10);
-  glVertex3d(a + 21, b + 44, c - 10);
-  glVertex3d(a + 44, b + 8, c - 10);//
-
-  glVertex3d(a + 44, b + 8, c - 10);
-  glVertex3d(a + 34, b + 8, c - 10);
-  glVertex3d(a + 11, b + 44, c - 10);//
-  
-  //BOKI DOROBIC
-  */
-
+ 
   //front
   {
     glColor3d(1, 0, 1);
@@ -677,7 +456,7 @@ void glDrawX(int a, int b, int c)
     glVertex3d(a + 5, b + 41, c - 0);
   }
 
-  //ty³
+  //ty3
   {
     glColor3d(1, 1, 0);
     glNormal3d(-1, 0, 0);
@@ -698,7 +477,7 @@ void glDrawX(int a, int b, int c)
     glVertex3d(a + 5, b + 41, c - 10);
   }
 
-  //dó³
+  //dó3
   {
     glColor3d(0, 0, 1);
 
@@ -858,7 +637,7 @@ void glDrawO(int a, int b, int c)
     glVertex3d(a + 16, b + 16, c + 0);
     glVertex3d(a + 16, b + 5, c + 0);//
   }
-  //ty³
+  //ty3
   {
     glColor3d(0, 1, 1);
 
@@ -965,7 +744,7 @@ void DrawSide(int xmin, int xmax, int ymin, int ymax,int zmin,int zmax, int r, i
 
 void DrawCube(int xmin, int xmax, int ymin, int ymax, int zmin, int zmax, int r, int g, int b)
 {
-  //glTexCoord2f(0.0, 0.0) ogarn¹æ w tej funkcji wspó³rzêdne tak, ¿eby teksturowa³o 
+  //glTexCoord2f(0.0, 0.0) ogarn1a w tej funkcji wspó3rzedne tak, ?eby teksturowa3o 
   glColor3d(r,g,b);
   glNormal3d(0, -1, 0);
   glTexCoord2f(0.0, 0.0);glVertex3d(xmin, ymin, zmin);
@@ -1036,7 +815,7 @@ unsigned char* ReadBmpFromFile(char* szFileName, int &riWidth, int &riHeight)
       riHeight = h;
       pRGBBuffer = new unsigned char[riWidth*riHeight * 3]; //Zaalokowanie odpowiedniego buffora obrazu
 
-                                                            //Za³aduj Palete barw jesli jest
+                                                            //Za3aduj Palete barw jesli jest
       if ((lev == 1) || (lev == 4) || (lev == 8))
       {
         n_colors = 1 << lev;
@@ -1051,12 +830,12 @@ unsigned char* ReadBmpFromFile(char* szFileName, int &riWidth, int &riHeight)
       switch (lev)
       {
       case 1:
-        //Nie obs³ugiwane
+        //Nie obs3ugiwane
         break;
       case 4:
-        //nie Obs³ugiwane
+        //nie Obs3ugiwane
         break;
-      case 8: //Skala szaroœci
+      case 8: //Skala szaro?ci
         ls = (v + 3) & 0xFFFFFFFC;
         for (j = (h - 1);j >= 0;j--)
         {
@@ -1105,4 +884,4 @@ unsigned char* ReadBmpFromFile(char* szFileName, int &riWidth, int &riHeight)
   }
   return pRGBBuffer;
 }
-//Rysowanie pola, kó³ek i krzy¿yków w taki sposób zrobiæ
+//Rysowanie pola, kó3ek i krzy?yków w taki sposób zrobia
