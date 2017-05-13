@@ -28,5 +28,11 @@
     <ClInclude Include="..\source\res.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\notes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\song.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
