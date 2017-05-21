@@ -207,7 +207,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   whdr.dwBufferLength = stop_buffor_size * pcmWaveFormat.nAvgBytesPerSec;
   //PlaySong(note_imperial, time_imperial, scale_imperial, pBufferForAudio, size_imp);
   {
-    PlaySong(note_smells_full, time_smells_full, scale_smells_full, pBufferForAudio, size_smells);
+      PlaySong(note_smells_full, time_smells_full, scale_smells_full, pBufferForAudio, size_smells);
     mmResult = waveOutPrepareHeader(hwo, &whdr, sizeof(WAVEHDR));
     mmResult = waveOutWrite(hwo, &whdr, sizeof(WAVEHDR));
     while ((whdr.dwFlags&WHDR_DONE) != WHDR_DONE)Sleep(100);

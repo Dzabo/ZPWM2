@@ -236,15 +236,6 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
     glLoadIdentity();
     return TRUE;
   }
-  /*case WM_PAINT:
-  {
-    CreateStart(hwndDlg, hInst);
-    HDC hdc = GetDC(hwndDlg);
-    DrawBoard(hdc);
-    //    RedrawBoard(hdc);
-    ReleaseDC(hwndDlg, hdc);
-    return DefWindowProc(hwndDlg, uMsg, wParam, lParam);
-  }*/
   case WM_CLOSE:
   {
     DestroyWindow(hwndDlg); // zniszczenie okna
