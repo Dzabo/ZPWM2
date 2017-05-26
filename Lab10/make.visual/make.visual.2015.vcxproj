@@ -22,7 +22,7 @@
     <ProjectGuid>{EF51A273-8CDA-46E7-89D7-FB47783EF97B}</ProjectGuid>
     <RootNamespace>makevisual2015</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>Lab02</ProjectName>
+    <ProjectName>Lab10</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
