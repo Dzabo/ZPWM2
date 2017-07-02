@@ -4,9 +4,6 @@
 #include <gl\gl.h>
 #include <gl\glu.h>
 #include <math.h>
-//#include "test.h"
-#include "song.h"
-#include "notes.h"
 
 #pragma comment (lib,"opengl32.lib")
 #pragma comment (lib,"glu32.lib")
@@ -71,7 +68,8 @@ double time_test[size_test] = { 1,1,1 };
 int scale_test[size_test] = { 4,4,4 };
 
 
-
+void PlayClick();
+void PlayEnd();
 bool is_game_on = false;
 bool is_first_player_turn = true;
 bool is_field_ocupied_by_first_player[TAB_SIZE_X][TAB_SIZE_Y];
@@ -128,6 +126,7 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
         {
           if (is_first_player_turn == true)
           {
+            PlayClick();
             is_field_ocupied_by_first_player[filed_x][filed_y] = true;
             result_tab[3 * (filed_y)+(filed_x)] = 1;
             licznik++;
@@ -135,6 +134,7 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
           }
           else
           {
+            PlayClick();
             is_field_ocupied_by_second_player[filed_x][filed_y] = true;
             result_tab[3 * (filed_y)+(filed_x)] = 2;
             licznik++;
@@ -163,30 +163,17 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
           int temp_x = (GL_SIZE / 2 + 8)*(i - 1);
           int temp_y = (GL_SIZE / 2 + 8)*(-j+1);
           glPushMatrix();
-          //glRotatef(fangle, 0, 1, 0);
           glTranslatef(temp_x, temp_y - 20, 0);
           
           if(is_field_ocupied_by_first_player[i][j]==true)
           {
             glRotatef(fangle, 0, 1, 0);
             glDrawX(-25,  0, 0);
-            whdr.dwBufferLength = start_buffor_size * pcmWaveFormat.nAvgBytesPerSec;
-            PlaySong(note_imperial, time_imperial, scale_imperial, pBufferForAudio, size_imp);
-            mmResult = waveOutPrepareHeader(hwo, &whdr, sizeof(WAVEHDR));
-            mmResult = waveOutWrite(hwo, &whdr, sizeof(WAVEHDR));
-            while ((whdr.dwFlags&WHDR_DONE) != WHDR_DONE)Sleep(100);
-            mmResult = waveOutUnprepareHeader(hwo, &whdr, sizeof(WAVEHDR));
           }
           if(is_field_ocupied_by_second_player[i][j]==true)
           {
             glRotatef(fangle, 0, 1, 0);
             glDrawO(-25, 0, 0);
-            whdr.dwBufferLength = start_buffor_size * pcmWaveFormat.nAvgBytesPerSec;
-            PlaySong(note_imperial, time_imperial, scale_imperial, pBufferForAudio, size_imp);
-            mmResult = waveOutPrepareHeader(hwo, &whdr, sizeof(WAVEHDR));
-            mmResult = waveOutWrite(hwo, &whdr, sizeof(WAVEHDR));
-            while ((whdr.dwFlags&WHDR_DONE) != WHDR_DONE)Sleep(100);
-            mmResult = waveOutUnprepareHeader(hwo, &whdr, sizeof(WAVEHDR));
           }
           glPopMatrix();
         }
@@ -303,38 +290,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
   HWND hwndMainWindow = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_MAINVIEW), NULL, DialogProc);
   ShowWindow(hwndMainWindow, iCmdShow);
 
-  //
-  pcmWaveFormat.wFormatTag = WAVE_FORMAT_PCM; // bez straty
-  pcmWaveFormat.nChannels = 1;//ile kanalow
-  pcmWaveFormat.nSamplesPerSec = 44100L;//czestotliwosc probkowania, L daje wartoœæ typu long
-  pcmWaveFormat.wBitsPerSample = 8;//ile bitow na probke
-  pcmWaveFormat.nAvgBytesPerSec = pcmWaveFormat.nSamplesPerSec*pcmWaveFormat.wBitsPerSample / 8;
-  pcmWaveFormat.nBlockAlign = 1;//
-  pcmWaveFormat.cbSize = 0;//
 
-  MMRESULT mmResult = 0;
-  HWAVEOUT hwo = 0;
-  UINT devId;
-
-  for (devId = 0; devId < waveOutGetNumDevs(); ++devId)
-  {
-    mmResult = waveOutOpen(&hwo, devId, &pcmWaveFormat, 0, 0, CALLBACK_NULL);
-    if (mmResult == MMSYSERR_NOERROR)break;
-  }
-  if (mmResult != MMSYSERR_NOERROR) //gdy nie uda siê otworzyæ karty dŸwiêkowej
-  {
-    MessageBox(hwndMainWindow, TEXT("Nie znaleziono karty"), TEXT("Error"), MB_OK);
-    return mmResult;
-  }
-  pBufferForAudio = new BYTE[max_buffor_size * pcmWaveFormat.nAvgBytesPerSec];
-  ZeroMemory(&whdr, sizeof(WAVEHDR));
-  whdr.lpData = reinterpret_cast<LPSTR>(pBufferForAudio);
-  whdr.dwBufferLength = start_buffor_size * pcmWaveFormat.nAvgBytesPerSec;
-  mmResult = waveOutPrepareHeader(hwo, &whdr, sizeof(WAVEHDR));
-  mmResult = waveOutWrite(hwo, &whdr, sizeof(WAVEHDR));
-  while ((whdr.dwFlags&WHDR_DONE) != WHDR_DONE)Sleep(1);
-  mmResult = waveOutUnprepareHeader(hwo, &whdr, sizeof(WAVEHDR));
-  //
 
   SetTimer(hwndMainWindow, 1, 50, NULL);
   MSG msg = {};
@@ -343,8 +299,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
     TranslateMessage(&msg);
     DispatchMessage(&msg);
   }
-  mmResult = waveOutClose(hwo);
-  delete[] pBufferForAudio;
+
  
 }
 
@@ -864,12 +819,14 @@ void glGameResult()
       {
         if (result_tab[3 * i] == 1)
         {
+          PlayEnd();
           MessageBox(NULL, TEXT("Krzyzyk wygral"),TEXT("KiK"), MB_OK);
           is_game_on = false;
           return;
         }
-        else if (result_tab[3 * i] == 2)
+        if (result_tab[3 * i] == 2)
         {
+          PlayEnd();
           MessageBox(NULL, TEXT("Kolko wygralo"), TEXT("KiK"), MB_OK);
           is_game_on = false;
           return;
@@ -879,12 +836,14 @@ void glGameResult()
       {
         if (result_tab[i] == 1)
         {
+          PlayEnd();
           MessageBox(NULL, TEXT("Krzyzyk wygral"), TEXT("KiK"), MB_OK);
           is_game_on = false;
           return;
         }
-        else if (result_tab[i] == 2)
+        if (result_tab[i] == 2)
         {
+          PlayEnd();
           MessageBox(NULL, TEXT("Kolko wygralo"), TEXT("KiK"), MB_OK);
           is_game_on = false;
           return;
@@ -896,12 +855,14 @@ void glGameResult()
     {
       if (result_tab[4] == 1)
       {
+        PlayEnd();
         MessageBox(NULL, TEXT("Krzyzyk wygral"), TEXT("KiK"), MB_OK);
         is_game_on = false;
         return;
       }
-      else if (result_tab[4] == 2)
+      if (result_tab[4] == 2)
       {
+        PlayEnd();
         MessageBox(NULL, TEXT("Kolko wygralo"), TEXT("KiK"), MB_OK);
         is_game_on = false;
         return;
@@ -909,6 +870,7 @@ void glGameResult()
     }
     if (licznik == 9)
     {
+      PlayEnd();
       MessageBox(NULL, TEXT("Remis"), TEXT("KiK"), MB_OK);
       is_game_on = false;
       return;
@@ -933,338 +895,13 @@ int Note(BYTE* pBufferForAudio, int iStart, int iDuration, float fNote, float fD
   return i;
 }
 
-void PlaySong(char *tabNote, double *tabTime, int *scale, BYTE* pBufferForAudio, int size)
+
+void PlayClick()
 {
-  int i = 0;
-  int zm = 0;
-  for (int j = 0; j < size; ++j)
-  {
-    switch (scale[j])
-    {
-    case 1:
-      switch (tabNote[j])
-      {
-      case 'C':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fC1, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'Z':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fCis1, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'D':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fD1, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'X':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fDis1, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'E':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fE1, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'F':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fF1, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'V':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fFis1, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'G':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fG1, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'N':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fGis1, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'A':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fA1, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'M':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fAis1, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'B':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fB1, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'P':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fP, pcmWaveFormat.nSamplesPerSec);
-        break;
-      default:
-        break;
-      }
-      break;
-    case 2:
-      switch (tabNote[j])
-      {
-      case 'C':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fC2, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'Z':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fCis2, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'D':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fD2, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'X':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fDis2, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'E':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fE2, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'F':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fF2, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'V':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fFis2, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'G':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fG2, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'N':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fGis2, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'A':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fA2, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'M':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fAis2, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'B':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fB2, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'P':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fP, pcmWaveFormat.nSamplesPerSec);
-        break;
-      default:
-        break;
-      }
-      break;
-    case 3:
-      switch (tabNote[j])
-      {
-      case 'C':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fC3, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'Z':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fCis3, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'D':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fD3, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'X':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fDis3, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'E':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fE3, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'F':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fF3, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'V':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fFis3, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'G':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fG3, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'N':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fGis3, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'A':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fA3, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'M':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fAis3, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'B':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fB3, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'P':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fP, pcmWaveFormat.nSamplesPerSec);
-        break;
-      default:
-        break;
-      }
-      break;
-    case 4:
-      switch (tabNote[j])
-      {
-      case 'C':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fC4, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'Z':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fCis4, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'D':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fD4, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'X':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fDis4, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'E':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fE4, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'F':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fF4, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'V':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fFis4, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'G':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fG4, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'N':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fGis4, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'A':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fA4, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'M':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fAis4, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'B':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fB4, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'P':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fP, pcmWaveFormat.nSamplesPerSec);
-        break;
-      default:
-        break;
-      }
-      break;
-    case 5:
-      switch (tabNote[j])
-      {
-      case 'C':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fC5, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'Z':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fCis5, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'D':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fD5, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'X':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fDis5, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'E':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fE5, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'F':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fF5, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'V':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fFis5, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'G':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fG5, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'N':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fGis5, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'A':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fA5, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'M':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fAis5, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'B':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fB5, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'P':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fP, pcmWaveFormat.nSamplesPerSec);
-        break;
-      default:
-        break;
-      }
-      break;
-    case 6:
-      switch (tabNote[j])
-      {
-      case 'C':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fC6, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'Z':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fCis6, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'D':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fD6, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'X':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fDis6, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'E':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fE6, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'F':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fF6, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'V':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fFis6, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'G':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fG6, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'N':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fGis6, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'A':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fA6, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'M':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fAis6, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'B':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fB6, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'P':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fP, pcmWaveFormat.nSamplesPerSec);
-        break;
-      default:
-        break;
-      }
-      break;
-    case 7:
-      switch (tabNote[j])
-      {
-      case 'C':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fC7, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'Z':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fCis7, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'D':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fD7, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'X':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fDis7, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'E':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fE7, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'F':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fF7, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'V':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fFis7, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'G':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fG7, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'N':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fGis7, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'A':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fA7, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'M':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fAis7, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'B':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fB7, pcmWaveFormat.nSamplesPerSec);
-        break;
-      case 'P':
-        i = Note(pBufferForAudio, i, pcmWaveFormat.nAvgBytesPerSec*(tabTime[j] / 16.0), fP, pcmWaveFormat.nSamplesPerSec);
-        break;
-      default:
-        break;
-      }
-      break;
-    default:
-      break;
-    }
-  }
+  sndPlaySound("..//resource//Klik.wav", SND_ASYNC);
+}
+
+void PlayEnd()
+{
+  sndPlaySound("..//resource//End.wav", SND_ASYNC);
 }
