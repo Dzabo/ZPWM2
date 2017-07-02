@@ -32,10 +32,10 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
       if (hFile==NULL) break;//sprawdzamy czy plik otwarty
 
       DWORD ret;
-
-      ReadFile(hFile, ImageBufferY, 352 * 288, &ret, NULL);//wczytujemy do zmiennej ImageBufferY wszystkie próbki
-      ReadFile(hFile, ImageBufferU, 352 * 288 / 4, &ret, NULL);
-      ReadFile(hFile, ImageBufferV, 352 * 288 / 4, &ret, NULL);
+      auto var3=352*288;
+      ReadFile(hFile, ImageBufferY, var3, &ret, NULL);//wczytujemy do zmiennej ImageBufferY wszystkie próbki
+      ReadFile(hFile, ImageBufferU, var3 / 4, &ret, NULL);
+      ReadFile(hFile, ImageBufferV, var3 / 4, &ret, NULL);
       //mierzymy czas 
       //iStart = GetTickCount();//funkcja pobiera czas systemowy
       QueryPerformanceCounter((_LARGE_INTEGER*)&iStart);
@@ -47,22 +47,24 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
         for (int x = 0; x < 352; ++x)
         {
           //pobranie próbek
+          auto var1= y / 2 * 352 / 2 + x / 2;
           int yy = ImageBufferY[y * 352 + x];
-          int uu = ImageBufferU[y / 2 * 352 / 2 + x / 2]-128;
-          int vv = ImageBufferV[y / 2 * 352 / 2 + x / 2]-128;
+          int uu = ImageBufferU[var1]-128;
+          int vv = ImageBufferV[var1]-128;
 
-          int r = ((256 * 1.40200)*vv + 256*yy) / 256;
-          int g = ((256 * -0.34414)*uu + (256 * -0.71414)*vv + 256 * yy) / 256;
-          int b = ((256 * 1.77200)*uu + 256 * yy) / 256;
+          int r = ((256 *static_cast<int> (1.40200))*vv + 256*yy) / 256;
+          int g = ((256 *static_cast<int> (-0.34414))*uu + (256 * -0.71414)*vv + 256 * yy) / 256;
+          int b = ((256 *static_cast<int> (1.77200))*uu + 256 * yy) / 256;
 
           // kolory wpisywane w windowsie s¹ od koñca wiec ³adujemy BGR a nie RGB
           //ImageBufferRGBA[3*(y * 352 + x)+0] = b;
           //ImageBufferRGBA[3*(y * 352 + x)+1] = g;
           //ImageBufferRGBA[3*(y * 352 + x)+2] = r;
           //wpisywanie do bufora tak ¿eby nie by³o do góry nogami
-          ImageBufferRGBA[3 * ((287-y) * 352 + x) + 0] = b;
-          ImageBufferRGBA[3 * ((287-y) * 352 + x) + 1] = g;
-          ImageBufferRGBA[3 * ((287-y) * 352 + x) + 2] = r;
+          auto var = 3 * ((287 - y) * 352 + x);
+          ImageBufferRGBA[var + 0] = b;
+          ImageBufferRGBA[var+ 1] = g;
+          ImageBufferRGBA[var+ 2] = r;
 
         }
       }
@@ -129,9 +131,10 @@ INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
       OPEN_EXISTING,          //otwórz istniej¹cy, mo¿na stworzyæ albo nadpisaæ
       FILE_ATTRIBUTE_NORMAL,  //czy plik jest ukryty,systemowy,specjalny itd 
       (HANDLE)NULL);
-    ImageBufferY = (BYTE*)malloc(352 * 288); //luma
-    ImageBufferU = (BYTE*)malloc(352 * 288 / 4);  //chroma
-    ImageBufferV = (BYTE*)malloc(352 * 288 / 4);  //chroma
+      auto var=352*288;
+    ImageBufferY = (BYTE*)malloc(var); //luma
+    ImageBufferU = (BYTE*)malloc(var / 4);  //chroma
+    ImageBufferV = (BYTE*)malloc(var / 4);  //chroma
 
     ImageBufferRGBA = (BYTE*)malloc(352 * 288 * 4);  //kolory?
     return FALSE;
